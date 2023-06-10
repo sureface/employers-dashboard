@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "assets/css/fonts";
+@import "assets/css/colors";
+
+.el-menu-vertical-demo {
+  width: 100%;
+  height: 100vh;
+}
+.el-aside {
+  width: auto !important;
+}
+.el-empty {
+  width: 100%;
+  height: 100vh;
+}
