@@ -15,6 +15,7 @@ interface signUpForm {
     userId: Number,
     signUpDetect: Boolean,
     signUpMessage: String,
+    allUser: Array<any>
 }
 
 export const signUpStore = defineStore('signUpStore', {
@@ -28,7 +29,8 @@ export const signUpStore = defineStore('signUpStore', {
             gender: [],
             userId: null,
             signUpDetect: false,
-            signUpMessage: ''
+            signUpMessage: '',
+            allUser: []
         }
     },
     getters: {
@@ -52,6 +54,9 @@ export const signUpStore = defineStore('signUpStore', {
         },
         getSignUpMessage() {
             return this.signUpMessage
+        },
+        getAllUser() {
+            return this.allUser
         }
     },
     actions: {
@@ -171,7 +176,19 @@ export const signUpStore = defineStore('signUpStore', {
             } catch (err) {
                 console.log(err)
             }
-        }
+        },
+        async getUserList() {
+            const token = localStorage.getItem('TOKEN')
+
+            const headers = {
+                Authorization: `Bearer ${token}`
+            }
+
+            const res = await axios.get(baseUrl + `User/GetUserList`, {
+                headers
+            });
+            this.allUser = res.data
+        },
     }
 })
 

@@ -9,7 +9,7 @@
     </el-icon>
     <div class="flex items-center">
 
-      <el-button type="info" :icon="UserFilled" @click="logOut">Log Out</el-button>
+      <el-button type="info" :icon="UserFilled" @click="logOut" class="mr-5">Log Out</el-button>
 
       <el-avatar
           :size="32"

@@ -14,7 +14,7 @@
           </el-header>
 
           <el-main>
-            <main />
+            <Main />
           </el-main>
 
         </el-container>
