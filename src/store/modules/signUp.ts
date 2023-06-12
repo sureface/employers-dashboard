@@ -1,90 +1,39 @@
-import { defineStore } from 'pinia'
-import { store } from '../index'
-import { AuthApi } from '../../api/AuthApi/index.js'
+import {defineStore} from 'pinia'
+import {store} from '../index'
 import axios from "axios";
-import * as process from "process";
+import {UnwrapRef} from "vue";
 
 const baseUrl = import.meta.env.VITE_BASE_PATH;
 
 interface signUpForm {
-    createUser: {
-        email: String,
-        userName: String,
-        password: String,
-        personId: Number,
-    },
-    createPerson: {
-        firstName: String,
-        middleName: String,
-        lastName: String,
-        passportSeria: String,
-        passportNumber: String,
-        genderId: Number,
-        countryId: Number,
-        regionId: Number,
-        districtId: Number,
-    },
-    country: {
-        countryVal: String,
-        getCountry: Array<Object>,
-    },
-    district: {
-        districtVal: String,
-        getDistrict: Array<Object>
-    },
-    region: {
-        regionVal: String,
-        getRegion: Array<Object>
-    },
+    country: Array<any>,
+    district: Array<any>,
+    region: Array<any>,
     userName: String,
     password: String,
-    // credentials: {
-    //     token
-    // }
+    gender: Array<any>,
+    userId: Number,
+    signUpDetect: Boolean,
+    signUpMessage: String,
 }
 
 export const signUpStore = defineStore('signUpStore', {
     state: (): signUpForm => {
         return {
-            createUser: {
-                email: '',
-                userName: '',
-                password: '',
-                personId: null,
-            },
-            createPerson: {
-                firstName: '',
-                middleName: '',
-                lastName: '',
-                passportSeria: '',
-                passportNumber: '',
-                genderId: null,
-                countryId: null,
-                regionId: null,
-                districtId: null,
-            },
-            country: {
-                countryVal: '',
-                getCountry: [],
-            },
-            district: {
-                districtVal: '',
-                getDistrict: [],
-            },
-            region: {
-                regionVal: '',
-                getRegion: [],
-            },
+            country: [],
+            district: [],
+            region: [],
             userName: '',
-            password: ''
+            password: '',
+            gender: [],
+            userId: null,
+            signUpDetect: false,
+            signUpMessage: ''
         }
     },
     getters: {
-        getCreateUser() {
-            return this.createUser
-        },
-        getCreatePerson() {
-            return this.createPerson
+        GiveTheUserId() {
+          return this.userId
         },
         getCountry() {
           return this.country
@@ -95,19 +44,133 @@ export const signUpStore = defineStore('signUpStore', {
         getDistrict() {
             return this.district
         },
+        getGender() {
+            return this.gender
+        },
+        getSignUpDetect() {
+            return this.signUpDetect
+        },
+        getSignUpMessage() {
+            return this.signUpMessage
+        }
     },
     actions: {
-        onLogin() {
+        async getCountries() {
 
-            const data = {
-                name: this.userName,
-                password: this.password
+            const token = localStorage.getItem('TOKEN')
+
+            const headers = {
+                Authorization: `Bearer ${token}`
             }
 
-            const res = axios.post(process.env.VITE_BASE_PATH + '/api/Authentication/login', data)
+            const res = await axios.get(baseUrl + 'Country/GetCountryList', {
+                headers
+            });
+            this.country = res.data
 
-            console.log(data)
+            console.log(this.country)
 
+        },
+        async getRegions(value: UnwrapRef<string>) {
+
+            console.log(value)
+
+            const token = localStorage.getItem('TOKEN')
+
+            const headers = {
+                Authorization: `Bearer ${token}`
+            }
+
+            const res = await axios.get(baseUrl + `Country/GetRegionListByCountryId/${value}`, {
+                headers
+            });
+            this.region = res.data
+
+        },
+        async getDistricts(value: UnwrapRef<string>) {
+
+            const token = localStorage.getItem('TOKEN')
+
+            const headers = {
+                Authorization: `Bearer ${token}`
+            }
+
+            const res = await axios.get(baseUrl + `District/GetDistrictByid/${value}`, {
+                headers
+            });
+            this.district.push(res.data)
+        },
+        async getGenders() {
+            const token = localStorage.getItem('TOKEN')
+
+            const headers = {
+                Authorization: `Bearer ${token}`
+            }
+
+            const res = await axios.get(baseUrl + `Gender/GetGenderList`, {
+                headers
+            });
+            this.gender = res.data
+        },
+        async createPerson(personData) {
+            const token = localStorage.getItem('TOKEN')
+
+            const headers = {
+                Authorization: `Bearer ${token}`
+            }
+
+            const payload = {
+                passportSeria: personData.passportSeria,
+                passportNumber: personData.passportSeriaNumber,
+                firstName: personData.firstName,
+                middleName: personData.middleName,
+                lastName: personData.lastName,
+                genderId: personData.genders,
+                countryId: personData.countyVal,
+                regionId: personData.regionVal,
+                districtId: personData.districtVal
+            }
+
+            try {
+                const res = await axios.post(baseUrl + `Person/CreatePerson`, payload,{
+                    headers
+                });
+                console.log(res.data.id, 'create progressing..')
+
+                this.userId = res.data.id
+            } catch (err) {
+                console.log(err)
+            }
+        },
+        async createUser(userData) {
+            const token = localStorage.getItem('TOKEN')
+
+            const headers = {
+                Authorization: `Bearer ${token}`
+            }
+
+            const payload = {
+                email: userData.email,
+                userName: userData.userName,
+                password: userData.password,
+                personId: this.userId
+            }
+
+            try {
+                const res = await axios.post(baseUrl + `User/CreateUser`, payload,{
+                    headers
+                });
+                console.log(res)
+                if (res.status === 200 && res.statusText === 'OK') {
+                    this.signUpDetect = true
+                    this.signUpMessage = 'You Have benn successfully registred ! you can Login now !'
+                } else {
+                    this.signUpDetect = false
+                    this.signUpMessage = 'something is wrong try again with different user names !'
+                }
+            } catch (err) {
+                console.log(err)
+            }
         }
     }
 })

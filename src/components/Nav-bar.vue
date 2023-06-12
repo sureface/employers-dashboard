@@ -9,7 +9,7 @@
     </el-icon>
     <div class="flex items-center">
 
-      <el-button type="info" :icon="UserFilled" @click="openModal">Sign Up</el-button>
+      <el-button type="info" :icon="UserFilled" @click="logOut">Log Out</el-button>
 
       <el-avatar
           :size="32"
@@ -18,21 +18,23 @@
       />
       <span class="text-large font-600 mr-3"> SureFace </span>
     </div>
-    <SignUp />
   </div>
 </template>
 
 <script setup lang="ts">
   import {Fold, UserFilled} from '@element-plus/icons-vue'
   import { useAppStore } from "../store/modules/app";
+  import { useUserStore } from "../store/user.js";
 
   const appStore = useAppStore()
+  const userStore = useUserStore()
 
   const handleClickOutside = () => {
     appStore.setCollapse()
   }
-  const openModal = () => {
-    appStore.setSignUpModal(true)
+
+  const logOut = () => {
+    userStore.logout()
   }
 
 </script>

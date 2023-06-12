@@ -6,7 +6,7 @@ import 'animate.css';
 import App from './App.vue'
 import { setupStore } from './store'
 import {elementPlusIcons} from "./plugins/elementPlusIcons";
-import {setupRouter} from "./router";
+import {setupRouter} from "./router/router.js";
 
 const setupAll = () => {
     const app = createApp(App)
